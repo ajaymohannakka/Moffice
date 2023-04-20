@@ -1,0 +1,147 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Page Blank {% endblock %} 
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <!-- [ Main Content ] start -->
+    <div class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+                    <!-- [ breadcrumb ] start -->
+                    <div class="page-header">
+                        <div class="page-block">
+                            <div class="row align-items-center">
+                                <div class="col-md-12">
+                                    <div class="page-header-title">
+                                        <h5 class="m-b-10">{{ team.team_name }}</h5>
+                                    </div>
+                                    <ul class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                        <li class="breadcrumb-item"><a href="{% url 'teams:team_list' %}">Teams</a></li>
+                                        <li class="breadcrumb-item"><a href="javascript:">Team Details</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- [ breadcrumb ] end -->
+                    <div class="main-body">
+                        <div class="page-wrapper">
+                            <!-- [ Main Content ] start -->
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <div class="row-lg-8">
+                                        <div class="card Recent-Users">
+                                            <div class="card-header">
+                                                <h5>Team Members</h5>
+                                            </div>
+                                            <div class="card-block px-0 py-3">
+                                                <div class="table-responsive">
+                                                    <table class="table table-hover">
+                                                        <tbody>
+                                                            {% for member in members %}
+                                                            <tr class="unread">
+                                                                <td>
+                                                                    <h6 class="mb-1">{{ member.user }}</h6>
+                                                                </td>
+                                                                <td>
+                                                                    <h6 class="text-muted">{{ member.role }}</h6>
+                                                                </td>
+                                                                <td><a href="#" class="label theme-bg text-white f-12">Tasks Assigned</a>
+                                                                </td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row-lg-8">
+                                        {% if request.user.user_type != 'EM' %}
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h5>Add New Member</h5>
+                                                </div>
+                                                <div class="card-block">
+                                                    {% include 'includes/modal.html' %}  
+                                                    <form method='POST' id="myForm">
+                                                        {% csrf_token %}
+                                                        {{ form.errors }}
+                                                        <div class="form-group">
+                                                            <label for="exampleFormControlSelect1">Member</label>
+                                                            {{ form.user }}
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="exampleFormControlSelect1">Role</label>
+                                                            {{ form.role }}
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5>Team Details</h5>
+                                        </div>
+                                        <div class="card-block" style="color:black">
+                                            <h6>{{ team }}</h6>
+                                            <p class="text-muted" >{{ team.team_description }}</p>
+                                            <span>
+                                                <img class="rounded-circle" style="width:40px;" src="/static/assets/images/user/avatar-1.jpg" alt="activity-user">
+                                                <p class="mb-1">{{ team.manager.first_name }} {{ team.manager.last_name }}</p>
+                                                <p class="text-muted" >{{ team.manager.email }}</p>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ Main Content ] end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+    $(document).ready(function() {
+      $('#myForm').submit(function(event) {
+        event.preventDefault();
+        var formData = $(this).serialize();
+        $.ajax({
+          type: 'POST',
+          url: $(this).attr('action'),
+          data: formData,
+          success: function(data) {
+            if (data.success) {
+              $('#successModal').modal('show');
+            }
+          },
+          error: function() {
+            alert('An error occurred while saving the data.');
+          }
+        });
+      });
+    });
+    $(document).ready(function () {
+        $("#okbtn").click(function () {
+            location.reload(true);
+        });
+    });
+    </script>
+{% endblock javascripts %}

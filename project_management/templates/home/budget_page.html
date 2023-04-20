@@ -1,0 +1,90 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Manage Budget {% endblock %} 
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <!-- [ Main Content ] start -->
+    <div class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+                    <!-- [ breadcrumb ] start -->
+                    <div class='row'>
+                        <div class="page-header col-sm-10">
+                            <div class="page-block">
+                                <div class="row align-items-center">
+                                    <div class="col-md-12">
+                                        <div class="page-header-title">
+                                            <h5 class="m-b-10">Manage Budget</h5>
+                                        </div>
+                                        <ul class="breadcrumb">
+                                            <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                            <li class="breadcrumb-item"><a href="javascript:">Manage Budget</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class=" col-sm-0">
+                            {% if request.user.user_type != 'EM' and request.user.user_type != 'MA' %}
+                                <a href="{% url 'budgets:list_users' %}" ><button type="button" class="btn btn-primary" title="Employee budget" data-toggle="tooltip">Set Budget</button></a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- [ breadcrumb ] end -->
+                    <div class="main-body">
+                        <div class="page-wrapper">
+                            <!-- [ Main Content ] start -->
+                            <div class="col-xl-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Costing</h5>
+                                    </div>
+                                    <div class="card-block table-border-style">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Employee</th>
+                                                        <th>Time Worked</th>
+                                                        <th>Cost</th>
+                                                        <th>Efficiency</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for item in result %}
+                                                    <a href="#">
+                                                        <tr style="color:black;">
+                                                                {% include 'includes/modal.html' %}
+                                                                <th scope="row">{{ forloop.counter }}</th>
+                                                                <td>{{ item.first_name }}</td>
+                                                                <td>{{ item.total_working_time }}</td>
+                                                                <td>{{ item.avg_cost_per_project }}</td>
+                                                                <td>{{ item.efficiency }}</td>
+                                                        </tr>
+                                                    </a>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ Main Content ] end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}

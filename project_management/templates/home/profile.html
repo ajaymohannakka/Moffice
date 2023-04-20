@@ -1,0 +1,176 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Profile {% endblock %} 
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <!-- [ Main Content ] start -->
+    <div class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+                    <div class="main-body">
+                        <div class="page-wrapper">
+                            <!-- [ Main Content ] start -->
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5>Edit Info</h5>
+                                        </div>
+                                        {% if request.method == 'POST' %}
+                                            {{ form.errors }}
+                                        {% endif %}
+                                        <div class="card-block">
+                                            <div class="row">
+                                                {% include 'includes/modal.html' %}
+                                                <form method='post' id="myForm">
+                                                    {% csrf_token %}
+                                                <div class="col-sm-12 mb-4">
+                                                    <div class="form-group">
+                                                        <label {% if not request.user.company %} class="text-danger" {% endif %} 
+                                                                for="company">Company</label>
+                                                        <input type="text"
+                                                                {% if request.user.company %} readonly value="{{ request.user.company }}" {% endif %}  
+                                                                class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter company">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12 mb-4">
+                                                    <div class="form-group">
+                                                        <label {% if not request.user.email %} class="text-danger" {% endif %} 
+                                                               for="exampleInputEmail1">Email address</label>
+                                                        <input type="email"
+                                                               {% if request.user.email %} readonly value="{{ request.user.email }}" {% endif %}  
+                                                               class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+                                                        {% if not request.user.email %}       
+                                                            <small id="emailHelp" class="form-text text-danger">
+                                                                You don't have an email address associated with this account.
+                                                            </small>
+                                                        {% endif %}    
+                                                    </div>
+                                                </div>
+                                                <div class="row ml-1">
+                                                    <div class="col-sm-6">
+                                                        <div class="form-group">
+                                                            <label for="fn">First Name</label>
+                                                            {{ form.first_name }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="form-group">
+                                                            <label for="fn">Last Name</label>
+                                                            {{ form.last_name }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6 mb-4">
+                                                    <div class="form-group">
+                                                        <label {% if not request.user.user_type %} class="text-danger" {% endif %} 
+                                                               for="exampleInputRole1">Role</label>
+                                                        <input type="email"
+                                                               {% if request.user.user_type %} readonly value="{{ request.user.get_user_type_display }}" {% endif %}  
+                                                               class="form-control" id="exampleInputRole1" placeholder="Enter role">
+                                                        {% if not request.user.user_type %}       
+                                                            <small id="roleHelp" class="form-text text-danger">
+                                                                You don't have an role address associated with this account.
+                                                            </small>
+                                                        {% endif %}    
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-sm-12 mb-4">
+                                                    <div class="form-group">
+                                                        <label for="abt">About Info</label>
+                                                        {{ form.bio }}
+                                                        <small id="abf" class="form-text text-muted">We'll show this on your profile.</small>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12 mb-2">
+                                                    <div class="form-group">
+                                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                                    </div>
+                                                </div>   
+                                            </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="card">
+                                        <div class="card-block">
+                                            <div class="d-flex align-items-center justify-content-center flex-column">
+                                                <div class="w-50 p-3">
+                                                    <img src="{{ ASSETS_ROOT }}/images/user/profile.jpg" alt="profile image"
+                                                        class="img-fluid rounded-circle">
+                                                </div>
+                                                <div class="text-center">
+                                                    <h4 class="font-weight-bold h6">
+                                                        {{ request.user.first_name }}&nbsp;{{ request.user.last_name }} 
+                                                    </h4>
+                                                    <p class="font-italic text-muted">
+                                                        {% if request.user.email %} {{ request.user.email }} {% endif %}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div class="small font-weight-light mt-4 text-center text-muted">
+                                                <p>
+                                                    This page is your private space.
+                                                    <br />
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ Main Content ] end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+    $(document).ready(function() {
+      $('#myForm').submit(function(event) {
+        event.preventDefault();
+        var formData = $(this).serialize();
+        $.ajax({
+          type: 'POST',
+          url: $(this).attr('action'),
+          data: formData,
+          success: function(data) {
+            if (data.success) {
+              $('#successModal').modal('show');
+            }
+          },
+          error: function() {
+            alert('An error occurred while saving the data.');
+          }
+        });
+      });
+    });
+    $(document).ready(function () {
+        $("#okbtn").click(function () {
+            $.ajax({
+                success: function() {
+                    window.location.href = '/';
+                }
+            });
+        });
+    });
+    </script>
+{% endblock javascripts %}
+

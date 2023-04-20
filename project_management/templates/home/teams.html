@@ -1,0 +1,89 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Teams {% endblock %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <!-- [ Main Content ] start -->
+    <div class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+                    <!-- [ breadcrumb ] start -->
+                    <div class='row'>
+                        <div class="page-header col-sm-10">
+                            <div class="page-block">
+                                <div class="row align-items-center">
+                                    <div class="col-md-12">
+                                        <div class="page-header-title">
+                                            <h5 class="m-b-10">Teams</h5>
+                                        </div>
+                                        <ul class="breadcrumb">
+                                            <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                            <li class="breadcrumb-item"><a href="javascript:">Teams</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class=" col-sm-0">
+                            {% if request.user.user_type != 'EM' %}
+                                <a href="{% url 'teams:create_team' %}" ><button type="button" class="btn btn-primary" title="Add new teams" data-toggle="tooltip">Add Team</button></a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- [ breadcrumb ] end -->
+                    <div class="main-body">
+                        <div class="page-wrapper">
+                            <!-- [ Main Content ] start -->
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="col-xl-12 col-md-12">
+                                        <div class="card Recent-Users">
+                                            <div class="card-header">
+                                                <h5>Your Teams</h5>
+                                            </div>
+                                            <div class="card-block px-0 py-3">
+                                                <div class="table-responsive">
+                                                    <table class="table table-hover">
+                                                        <tbody>
+                                                        {% for team in teams %}
+                                                            <tr class="unread">
+                                                                <td><img class="rounded-circle" style="width:40px;" src="/static/assets/images/user/group-avatar-1.png" alt="activity-user">
+                                                                </td>
+                                                                <td>
+                                                                    <h6 class="mb-1">{{ team.team_name }}</h6>
+                                                                    <p class="m-0">{{ team.team_description | safe | truncatewords:5 | slice:":-4" }}...</p>
+                                                                </td>
+                                                                <td>
+                                                                    <h6 class="text-muted"><i class="fas fa-circle text-c-green f-10 m-r-15"></i>11
+                                                                        MAY 12:56</h6>
+                                                                </td>
+                                                                <td><a href="{% url 'teams:team_details' team.id %}" class="label theme-bg text-white f-12">Details</a>
+                                                                </td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ Main Content ] end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}

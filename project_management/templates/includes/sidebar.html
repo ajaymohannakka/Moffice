@@ -1,0 +1,76 @@
+<!-- [ navigation menu ] start -->
+<nav class="pcoded-navbar">
+    <div class="navbar-wrapper">
+        <div class="navbar-brand header-logo">
+            <a href="/" class="b-brand">
+                <div class="b-bg">
+                    <i class="feather icon-trending-up"></i>
+                </div>
+                <span class="b-title">Moffice</span>
+            </a>
+            <a class="mobile-menu" id="mobile-collapse" href="javascript:"><span></span></a>
+        </div>
+        <div class="navbar-content scroll-div">
+            <ul class="nav pcoded-inner-navbar">
+                <li class="nav-item pcoded-menu-caption">
+                    <label>Navigation</label>
+                </li>
+                <li data-username="dashboard Default Ecommerce CRM Analytics Crypto Project" 
+                    class="nav-item {% if 'index' in segment %} active {% endif %}">
+                    <a href="/" class="nav-link "><span class="pcoded-micon"><i class="feather icon-home"></i></span><span
+                            class="pcoded-mtext">Dashboard</span></a>
+                </li>
+                <li data-username="Table bootstrap datatable footable" 
+                    class="nav-item {% if 'tbl_bootstrap' in segment %} active {% endif %}">
+                    <a href="{% url 'projects:project_list' %}" class="nav-link "><span class="pcoded-micon"><i
+                            class="feather icon-server"></i></span><span class="pcoded-mtext">Projects</span></a>
+                </li>
+                <li data-username="form elements advance componant validation masking wizard picker select"
+                    class="nav-item {% if 'form_elements' in segment %} active {% endif %}">
+                    <a href="{% url 'teams:team_list' %}" class="nav-link "><span class="pcoded-micon"><i
+                            class="feather icon-file-text"></i></span><span
+                            class="pcoded-mtext">Teams</span></a>
+                </li>
+                {% if request.user.user_type != 'EM' and request.user.user_type != 'MA' %}
+                <li data-username="Role Page" 
+                    class="nav-item {% if 'roles' in segment %} active {% endif %}">
+                    <a href="{% url 'home:roles' %}" class="nav-link">
+                        <span class="pcoded-micon"><i class="feather icon-feather"></i></span>
+                            <span class="pcoded-mtext">Roles</span></a>
+                </li>
+                {% endif %}
+                {% if request.user.user_type != 'EM' and request.user.user_type != 'MA' %}
+                <li
+                data-username="basic components Button Alert Badges breadcrumb Paggination progress Tooltip popovers Carousel Cards Collapse Tabs pills Modal Grid System Typography Extra Shadows Embeds"
+                class="nav-item pcoded-hasmenu {% if 'basic_components' in parent %}active pcoded-trigger{% endif %}">
+                <a href="javascript:" class="nav-link "><span class="pcoded-micon"><i
+                        class="feather icon-box"></i></span><span class="pcoded-mtext">Manage users</span></a>
+                <ul class="pcoded-submenu">
+                    <li style="padding:2px">
+                    <a href="{% url 'home:verify' %}">
+                        Verify user
+                    </a>
+                    </li>
+                    <li><a href="{% url 'home:verified_user' %}" class="">Approved users</a></li>
+                </ul>
+                </li>
+                {% endif %}
+                {% if request.user.user_type != 'EM' %}
+                <li data-username="Manage Budget Page"
+                    class="nav-item {% if 'budge' in segment %} active {% endif %}">
+                    <a href="{% url 'budgets:budget_list' %}" class="nav-link">
+                        <span class="pcoded-micon"><i class="feather icon-bar-chart-2"></i></span>
+                            <span class="pcoded-mtext">Manage Budget</span></a>
+                </li>
+                {% endif %}
+                <li data-username="Profile Page" 
+                    class="nav-item {% if 'profile' in segment %} active {% endif %}">
+                    <a href="{% url 'home:profile' %}" class="nav-link">
+                        <span class="pcoded-micon"><i class="feather icon-user"></i></span>
+                            <span class="pcoded-mtext">Profile Page</span></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- [ navigation menu ] end -->

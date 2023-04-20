@@ -1,0 +1,260 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Projects {% endblock %} 
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <!-- [ Main Content ] start -->
+    <div class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+                    <!-- [ breadcrumb ] start -->
+                    <div class='row'>
+                        <div class="page-header col-sm-8">
+                            <div class="page-block">
+                                <div class="row align-items-center">
+                                    <div class="col-md-12">
+                                        <div class="page-header-title">
+                                            <h5 class="m-b-10">Projects Details</h5>
+                                        </div>
+                                        <ul class="breadcrumb">
+                                            <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                            <li class="breadcrumb-item"><a href="{% url 'projects:project_list' %}">Project</a></li>
+                                            <li class="breadcrumb-item"><a href="javascript:">Projects Details</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mr-4 ml-4 col-sm-0">
+                            {% if request.user.user_type != 'EM' %}
+                                <a href="{% url 'tasks:create_task' project.id %}" ><button type="button" class="btn btn-primary" title="Add new projects" data-toggle="tooltip">Add Task</button></a>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-0">
+                            <a href="{% url 'projects:discuss_project' project.id %}" ><button type="button" class="btn btn-primary" title="Discuss projects" data-toggle="tooltip">Discussion</button></a>
+                        </div>
+                    </div>
+                    <!-- [ breadcrumb ] end -->
+                    <div class="main-body">
+                        <div class="page-wrapper">
+                            <!-- [ Main Content ] start -->
+                            <div class="row">
+                                <div class="col-xl-6">
+                                    <div class="card" style="min-height:350px;max-height:350px">
+                                    <div class="card-header">
+                                        <h5>Project Completion</h5>
+                                    </div>
+                                    <div class="card-block">
+                                        <canvas id="my-chart" style="min-height:240px;max-height:240px"></canvas>
+                                    </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6">
+                                    <div class="card" style="min-height:350px;max-height:350px">
+                                      <div class="card-header">
+                                        <h5>Progress Indicator</h5>
+                                      </div>
+                                      <div class="card-block d-flex justify-content-center align-items-center">
+                                        <canvas id="my-line-chart" style="min-height:240px;max-height:240px"></canvas>
+                                      </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>All Tasks of {{ project.project_name }}</h5>
+                                        <span class="d-block m-t-5">These are the <code>tasks</code> table </span>
+                                    </div>
+                                    <div class="card-block table-border-style">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Project Name</th>
+                                                        <th>Assigned to Team</th>
+                                                        <th>Status</th>
+                                                        <th>Updates</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for task in tasks %}
+                                                    <a href="#">
+                                                        <tr style="color:black">
+                                                            <th scope="row">{{ forloop.counter }}</th>
+                                                            <td>{{ task.task_name }}</td>
+                                                            <td>{{ task.assigned_to }}</td>
+                                                            
+                                                            <td>
+                                                                <div class="form-group">
+                                                                    <select name="task_status" onchange="updateTaskStatus('{{ task.id }}', this.value, '{{ csrf_token }}')" class="form-control-sm border rounded p-1 " style="background-color:#F4F7FA;" required="" id="id_task_status">
+                                                                        <option value="{{ task.task_status }}" selected="{{ task.get_task_status_display }}">{{ task.get_task_status_display }}</option>
+                                                                        {% if task.task_status != 'REV' %}
+                                                                            <option value="REV">Review</option>
+                                                                        {% endif %}
+                                                                        {% if task.task_status != 'INP' %}
+                                                                            <option value="INP">In Progress</option>
+                                                                        {% endif %}
+                                                                        {% if task.task_status != 'TOD' %}
+                                                                            <option value="TOD">TODO</option>
+                                                                        {% endif %}
+                                                                        {% if request.user.user_type != 'EM' and task.task_status != 'CMP' %}
+                                                                            <option value="CMP">Completed</option>
+                                                                        {% endif %}
+                                                                    </select>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <a href="{% url 'tasks:task_updates' task.id %}" class="label theme-bg text-white f-12">Tasks Updates</a>
+                                                            </td>
+                                                        </tr>
+                                                    </a>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ Main Content ] end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+
+{% endblock content %}
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+<script>
+    $(document).ready(function() {
+      $.ajax({
+        url: 'completion-data/',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+          var labels = [];
+          var values = [];
+          for (var i = 0; i < data.data.length; i++) {
+            labels.push(data.data[i].label);
+            values.push(data.data[i].value);
+          }
+          // Display the data using Chart.js
+          var ctx = document.getElementById('my-chart').getContext('2d');
+          var myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: 'My Dataset',
+                data: values,
+                backgroundColor: [
+                  
+                  'rgba(75, 192, 192, 0.6)',
+                  'rgba(153, 102, 255, 0.6)'
+                ]
+              }]
+            },
+            options: {
+                responsive: true, // set to false to disable responsiveness
+                maintainAspectRatio: false, // set to true to maintain aspect ratio
+                cutoutPercentage: 50, // set the size of the hole in the center
+                legend: {
+                  display: true,
+                  position: 'right'
+                },
+                title: {
+                  display: true,
+                  text: 'My Doughnut Chart'
+                }
+            }
+          });
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          console.log(textStatus, errorThrown);
+        }
+      });
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+      $.ajax({
+        url: 'line-data/',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+          var labels = [];
+          var values = [];
+          for (var i = 0; i < data.data.length; i++) {
+            labels.push(data.data[i].x);
+            values.push(data.data[i].y);
+          }
+          // Display the data using Chart.js
+          var ctx = document.getElementById('my-line-chart').getContext('2d');
+          var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: 'My Dataset',
+                data: values,
+                borderColor: 'rgba(255, 99, 132, 0.6)',
+                fill: false
+              }]
+            },
+            options: {
+              responsive: true,
+              scales: {
+                xAxes: [{
+                  display: true,
+                  scaleLabel: {
+                    display: true,
+                    labelString: 'X Label'
+                  }
+                }],
+                yAxes: [{
+                  display: true,
+                  scaleLabel: {
+                    display: true,
+                    labelString: 'Y Label'
+                  }
+                }]
+              }
+            }
+          });
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          console.log(textStatus, errorThrown);
+        }
+      });
+    });
+  </script>
+  
+<script>
+    function updateTaskStatus(taskId, status, csrf_token) {
+        $.ajax({
+          url: '/tasks/update-status/' + taskId + '/',
+          method: 'PATCH',
+          data: {
+            task_status: status,
+          },
+          headers: { "X-CSRFToken": csrf_token },
+          success: function(data) {
+            console.log("updated successfully")
+          },
+          error: function(xhr, status, error) {
+            alert('An error occurred while saving the data.');
+          }
+        });
+      }
+</script>
+{% endblock javascripts %}
