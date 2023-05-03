@@ -10,4 +10,5 @@ urlpatterns = [
     path('<int:project_id>/discuss/', project_discuss_view, name='discuss_project'),
     path('details/<int:project_id>/completion-data/', project_completion_graph_data, name='completion_data'),
     path('details/<int:project_id>/line-data/', project_progress_graph_data, name='line_data'),
+    path('<int:project_id>/update-status/', project_status_update_view, name='Project_completed')
 ]

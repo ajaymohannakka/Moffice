@@ -33,9 +33,6 @@ class Project(models.Model):
 
         return {'completed_percent': completed_percent, 'pending_percent': pending_percent}
 
-    # get cost of a project
-
-
 
 class ProjectUpdates(models.Model):
     project = models.ForeignKey(Project, verbose_name=_("task"), on_delete=models.CASCADE)

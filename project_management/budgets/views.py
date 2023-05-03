@@ -6,11 +6,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import JsonResponse
 from django.db.models import OuterRef, Subquery
+from django.db.models import Sum, Case, When, BooleanField, FloatField, F
 
 from project_management.utils.permissions import HRLevelPermissionMixin
 from project_management.utils.permissions import NotEmployeePermissionMixin
 from project_management.users.models import User
 from project_management.tasks.models import Task
+from project_management.teams.models import TeamMember, Team
 from project_management.projects.models import Project
 from .models import UserRate
 from .utils import format_working_time
@@ -23,46 +25,35 @@ class ManageBudgetListView(LoginRequiredMixin, NotEmployeePermissionMixin, Templ
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         company = self.request.user.company
-        user = self.request.user
-        try:
-            user_queryset = User.objects.filter(company=company)
-            user_data = user_queryset.values(
-                'id', 'first_name', 'last_name', 'email',
-                'task__start_date_time', 'task__end_date_time',
-                'userrate__user_rate_per_hour',
-                'task__belong_to__id', 'task__task_status'
-            )
-            df = pd.DataFrame.from_records(user_data)
-            
-            df['task__start_date_time'] = pd.to_datetime(df['task__start_date_time'])
-            df['task__end_date_time'] = pd.to_datetime(df['task__end_date_time'])
-            
-            completed_tasks = df['task__task_status'] == Task.TaskStatus.COMPLETED
-            df = df[completed_tasks].assign(
-                total_working_time=(df['task__end_date_time'] - df['task__start_date_time']).dt.total_seconds()
-            )
-
-            df['total_cost'] = df['userrate__user_rate_per_hour'].fillna(0) * df['total_working_time']/3600
-
-            df['total_completed_tasks'] = completed_tasks.astype(int)
-
-            grouped = df.groupby(['id', 'first_name', 'last_name', 'email', 'task__belong_to__id']).agg({
-                'total_working_time': 'mean',
-                'total_cost': 'sum',
-                'total_completed_tasks': 'sum'
-            }).reset_index()
-
-            grouped['avg_cost_per_project'] = grouped['total_cost'] / grouped['task__belong_to__id']
-            grouped['efficiency'] = (grouped['total_completed_tasks'] / grouped['total_working_time'] * grouped['avg_cost_per_project']) * 100
-            grouped['total_working_time'] = grouped['total_working_time'].apply(lambda x: str(timedelta(seconds=x)))
-
-            grouped = grouped.round(0)
-
-            result = grouped[['first_name', 'email', 'total_working_time', 'avg_cost_per_project', 'efficiency']].to_dict('records')
-            context['result'] = result
-            context['format_working_time'] = format_working_time
-        except User.DoesNotExist:
-            raise Http404("Team does not exist")
+        users = company.user_set.all()
+        data = []
+        for user in users:
+            user_rates_for_all_projects = UserRate.objects.filter(user=user)
+            if len(user_rates_for_all_projects):
+                for user_rate in user_rates_for_all_projects:
+                    project = user_rate.project
+                    progress = user.get_task_stats(project)
+                    working_hours = user.get_total_working_hours(project)
+                    cost_per_hour = user_rate.user_rate_per_hour
+                    total_cost = round(working_hours * cost_per_hour, 2)
+                    payment_status = "paid" if project.project_status == Project.ProjectStatus.COMPLETED else "pending"                    
+                    if user.user_type == User.UserType.MANAGER:
+                        role = 'Manager'
+                    else:
+                        team = project.assigned_to
+                        team_member = TeamMember.objects.filter(team = team, user = user).first()
+                        role = team_member.role.role
+                    data.append({
+                        "name": f"{user.first_name} {user.last_name}",
+                        "email": user.email,
+                        "role": role,
+                        "project": project.project_name,
+                        "progress": f"{progress}%",
+                        "cost_per_hour": cost_per_hour,
+                        "total_cost": total_cost,
+                        "status": payment_status
+                    })
+                    context["result"] = data
         return context
 
 manage_budget_list_view = ManageBudgetListView.as_view()

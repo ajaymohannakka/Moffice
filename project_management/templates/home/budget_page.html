@@ -51,9 +51,12 @@
                                                     <tr>
                                                         <th>#</th>
                                                         <th>Employee</th>
-                                                        <th>Time Worked</th>
-                                                        <th>Cost</th>
-                                                        <th>Efficiency</th>
+                                                        <th>Role</th>
+                                                        <th>Project</th>
+                                                        <th>Progress</th>
+                                                        <th>Cost (per hour)</th>
+                                                        <th>Total cost</th>
+                                                        <th>Status</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -62,10 +65,13 @@
                                                         <tr style="color:black;">
                                                                 {% include 'includes/modal.html' %}
                                                                 <th scope="row">{{ forloop.counter }}</th>
-                                                                <td>{{ item.first_name }}</td>
-                                                                <td>{{ item.total_working_time }}</td>
-                                                                <td>{{ item.avg_cost_per_project }}</td>
-                                                                <td>{{ item.efficiency }}</td>
+                                                                <td>{{ item.name }}({{ item.email }})</td>
+                                                                <td>{{ item.role }}</td>
+                                                                <td>{{ item.project }}</td>
+                                                                <td>{{ item.progress }}</td>
+                                                                <td>{{ item.cost_per_hour }}</td>
+                                                                <td>{{ item.total_cost }}</td>
+                                                                <td>{{ item.status }}</td>
                                                         </tr>
                                                     </a>
                                                     {% endfor %}

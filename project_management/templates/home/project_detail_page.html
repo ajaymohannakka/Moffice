@@ -32,11 +32,19 @@
                         </div>
                         <div class="mr-4 ml-4 col-sm-0">
                             {% if request.user.user_type != 'EM' %}
-                                <a href="{% url 'tasks:create_task' project.id %}" ><button type="button" class="btn btn-primary" title="Add new projects" data-toggle="tooltip">Add Task</button></a>
+                              {% if project.project_status != 'CMP' %}
+                              <button type="button" onclick="markAsCompleted('{{ project.id }}', 'CMP', '{{ csrf_token }}')" class="btn btn-primary" title="Close project" data-toggle="tooltip">Close</button>
+                              <a href="{% url 'tasks:create_task' project.id %}" ><button type="button" class="btn btn-primary" title="Add new Task" data-toggle="tooltip">Task</button></a>
+                              {% else %}
+                              <button type="button" class="btn btn-primary disabled" title="Project closed" data-toggle="tooltip">Close</button>
+                              <button type="button" class="btn btn-primary disabled" title="Add new Task" data-toggle="tooltip">Task</button>
+                              {% endif %}  
                             {% endif %}
-                        </div>
-                        <div class="col-sm-0">
-                            <a href="{% url 'projects:discuss_project' project.id %}" ><button type="button" class="btn btn-primary" title="Discuss projects" data-toggle="tooltip">Discussion</button></a>
+                            {% if project.project_status != 'CMP' %}
+                            <a href="{% url 'projects:discuss_project' project.id %}" ><button type="button" class="btn btn-primary" title="Discuss projects" data-toggle="tooltip">Discuss</button></a>
+                            {% else %}
+                              <button type="button" class="btn btn-primary disabled" title="Discuss projects" data-toggle="tooltip">Discuss</button>
+                            {% endif %}
                         </div>
                     </div>
                     <!-- [ breadcrumb ] end -->
@@ -93,7 +101,7 @@
                                                             
                                                             <td>
                                                                 <div class="form-group">
-                                                                    <select name="task_status" onchange="updateTaskStatus('{{ task.id }}', this.value, '{{ csrf_token }}')" class="form-control-sm border rounded p-1 " style="background-color:#F4F7FA;" required="" id="id_task_status">
+                                                                    <select name="task_status" onchange="updateTaskStatus('{{ task.id }}', this.value , '{{ csrf_token }}')" class="form-control-sm border rounded p-1 " style="background-color:#F4F7FA;" required="" id="id_task_status">
                                                                         <option value="{{ task.task_status }}" selected="{{ task.get_task_status_display }}">{{ task.get_task_status_display }}</option>
                                                                         {% if task.task_status != 'REV' %}
                                                                             <option value="REV">Review</option>
@@ -205,7 +213,7 @@
             data: {
               labels: labels,
               datasets: [{
-                label: 'My Dataset',
+                label: 'Completed tasks',
                 data: values,
                 borderColor: 'rgba(255, 99, 132, 0.6)',
                 fill: false
@@ -250,6 +258,23 @@
           headers: { "X-CSRFToken": csrf_token },
           success: function(data) {
             console.log("updated successfully")
+          },
+          error: function(xhr, status, error) {
+            alert('An error occurred while saving the data.');
+          }
+        });
+      }
+      function markAsCompleted(projectId, status, csrf_token) {
+        $.ajax({
+          url: '/projects/'+ projectId +'/update-status/',
+          method: 'PATCH',
+          data: {
+            project_status: status,
+          },
+          headers: { "X-CSRFToken": csrf_token },
+          success: function(data) {
+            console.log("updated successfully")
+            location.reload(true);
           },
           error: function(xhr, status, error) {
             alert('An error occurred while saving the data.');

@@ -28,7 +28,6 @@ class UserLoginView(IsUserAuthenticatedMixin, View):
             password = form.cleaned_data['password']
             user = authenticate(request, email=email, password=password)
             status = User.objects.filter(email=email)
-            print(not status.values())
             if user is not None:
                 login(request, user)
                 return redirect('home:index')

@@ -45,42 +45,77 @@
                                         <h5>All Projects</h5>
                                         <span class="d-block m-t-5">These are the <code>projects</code> table </span>
                                     </div>
-                                    <div class="card-block table-border-style">
-                                        <div class="table-responsive">
-                                            <table class="table table-hover">
-                                                <thead>
-                                                    <tr>
-                                                        <th>#</th>
-                                                        <th>Project Name</th>
-                                                        <th>Assigned to Team</th>
-                                                        <th>Deadline</th>
-                                                        <th>Status</th>
-                                                        <th>Progress</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
+                                    <div>
+                                        <div class='row px-5 pt-4'>
+                                            <div class='pr-2'>
+                                                <select name="task_status" class="form-control-sm border rounded p-1 " style="border-color: blue;" required="" id="id_filter">
+                                                    <option value="ALL">All</option>
+                                                    <option value="CMP">Completed</option>
+                                                    <option value="REV">Pending</option>
+                                                </select>
+                                            </div>
+                                            <div class='pr-2'>
+                                                <select name="task_status" class="form-control-sm border rounded p-1 " style="border-color: blue;" required="" id="id_filter">
+                                                    <option value="ALL">All</option>
+                                                    <option value="CMP">This month</option>
+                                                    <option value="REV">Last month</option>
+                                                    <option value="REV">This quater</option>
+                                                    <option value="REV">This year</option>
+                                                </select>
+                                            </div>
+                                            <div class='pr-2'>
+                                                <select name="task_status" class="form-control-sm border rounded p-1 " style="border-color: blue;" required="" id="id_filter">
+                                                    <option value='All'>All</option>
                                                     {% for project in projects %}
-                                                    <a href="#">
-                                                        <tr style="color:black">
-                                                            <th scope="row">{{ forloop.counter }}</th>
-                                                            <td><a style="text-decoration: none !important;color:black" href="{% url 'projects:project_details' project.id %}">{{ project.project_name }}</a></td>
-                                                            <td><a style="text-decoration: none !important;color:black" href="{% url 'teams:team_details' project.assigned_to.id %}">{{ project.assigned_to }}</a></td>
-                                                            <td>{{ project.end_date_time }}</td>
-                                                            {% if project.project_status == 'PEN' %}
-                                                                <td style="color:red"><i class="fas fa-circle text-c-red f-10"></i>&nbsp&nbsp&nbsp{{ project.get_project_status_display }}</td>
-                                                            {% else %}
-                                                                <td style="color:green"><i class="fas fa-circle text-c-green f-10"></i>&nbsp&nbsp&nbsp{{ project.get_project_status_display }}</td>
-                                                            {% endif %}
-                                                            <td>
-                                                                {% with completion_details=project.get_project_completion_details %}
-                                                                    {{ completion_details.completed_percent }}% Completed
-                                                                {% endwith %}
-                                                            </td>
-                                                        </tr>
-                                                    </a>
+                                                        <option value="{{project.team}}">{{ project.assigned_to }}</option>
                                                     {% endfor %}
-                                                </tbody>
-                                            </table>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <button class="btn btn-primary btn-sm py-0" style="height:31px">
+                                                    Filter
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="card-block table-border-style">
+                                                <div class="table-responsive">
+                                                    <table class="table table-hover">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>#</th>
+                                                                <th>Project Name</th>
+                                                                <th>Assigned to Team</th>
+                                                                <th>Deadline</th>
+                                                                <th>Status</th>
+                                                                <th>Progress</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for project in projects %}
+                                                            <a href="#">
+                                                                <tr style="color:black">
+                                                                    <th scope="row">{{ forloop.counter }}</th>
+                                                                    <td><a style="text-decoration: none !important;color:black" href="{% url 'projects:project_details' project.id %}">{{ project.project_name }}</a></td>
+                                                                    <td><a style="text-decoration: none !important;color:black" href="{% url 'teams:team_details' project.assigned_to.id %}">{{ project.assigned_to }}</a></td>
+                                                                    <td>{{ project.end_date_time }}</td>
+                                                                    {% if project.project_status == 'PEN' %}
+                                                                        <td style="color:red"><i class="fas fa-circle text-c-red f-10"></i>&nbsp&nbsp&nbsp{{ project.get_project_status_display }}</td>
+                                                                    {% else %}
+                                                                        <td style="color:green"><i class="fas fa-circle text-c-green f-10"></i>&nbsp&nbsp&nbsp{{ project.get_project_status_display }}</td>
+                                                                    {% endif %}
+                                                                    <td>
+                                                                        {% with completion_details=project.get_project_completion_details %}
+                                                                            {{ completion_details.completed_percent }}% Completed
+                                                                        {% endwith %}
+                                                                    </td>
+                                                                </tr>
+                                                            </a>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

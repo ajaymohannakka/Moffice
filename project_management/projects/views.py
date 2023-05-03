@@ -1,12 +1,17 @@
 import pandas as pd
+from datetime import datetime
 
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, View, TemplateView
+from django.views.generic.edit import UpdateView
 from django.db.models import Q
+from django.http import QueryDict
+from django.http import HttpResponseBadRequest, HttpResponseNotFound
 from django.http import JsonResponse
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
+from django.urls import reverse_lazy
 
 from project_management.utils.permissions import NotEmployeePermissionMixin
 from project_management.users.models import User
@@ -80,7 +85,6 @@ class CreateProjectView(LoginRequiredMixin, NotEmployeePermissionMixin, Template
     def post(self, request, *args, **kwargs):
         company = request.user.company
         form = self.form_class(company, request.POST)
-        print(form.errors)
         if form.is_valid():
             form.save()
             data = {'success': True, 'message': 'Data saved successfully!'}
@@ -162,15 +166,18 @@ class ProjectProgressGraphData(LoginRequiredMixin, View):
         task_data.loc[task_data['task_status'] == 'CMP', 'completion_date'] = task_data['end_date_time']
         task_data['completion_date'] = pd.to_datetime(task_data['completion_date'])
         
-
         # # Create a date range of five equally spaced dates
         date_range = pd.date_range(start=project.start_date_time, end=project.end_date_time, periods=5)
-
+        # import pdb;pdb.set_trace()
+        # TODO: 
+        task_data_updated = task_data.dropna()
+        # import pdb;pdb.set_trace()
         # # Group the tasks by the completion date, then count the number of completed tasks
-        grouped = task_data.groupby(pd.Grouper(key='completion_date', freq='D'))['task_status'].count()
-        print(grouped)
-        grouped = grouped.reindex(date_range, method='nearest')
-
+        grouped = task_data_updated.groupby(pd.Grouper(key='completion_date', freq='D'))['task_status'].count()
+        # import pdb;pdb.set_trace()
+        if len(grouped):
+            grouped = grouped.reindex(date_range, method='nearest')
+    
         # # Calculate the percentage of completed tasks for each date
         total_tasks = len(tasks)
         percentages = [round((count / total_tasks) * 100, 2) for count in grouped]
@@ -181,3 +188,23 @@ class ProjectProgressGraphData(LoginRequiredMixin, View):
         return JsonResponse({"data": data}, safe=False)
     
 project_progress_graph_data = ProjectProgressGraphData.as_view()
+
+
+class ProjectStatusUpdateView(LoginRequiredMixin, View):
+    def patch(self, request, *args, **kwargs):
+        project_id = self.kwargs['project_id']
+        project = get_object_or_404(Project, id=project_id)
+        request_body = request.body.decode('utf-8')
+        post_data = QueryDict(request_body)
+
+        project_status = post_data.get('project_status')
+        if project_status:
+            if project_status == Project.ProjectStatus.COMPLETED:
+                project.project_status = Project.ProjectStatus.COMPLETED
+                project.end_date_time = datetime.now()
+            project.save()
+            return JsonResponse({'message': 'Project status updated successfully'})
+        else:
+            return HttpResponseBadRequest('Project status is required')
+        
+project_status_update_view = ProjectStatusUpdateView.as_view()

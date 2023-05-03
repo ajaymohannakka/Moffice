@@ -30,9 +30,6 @@ class Task(models.Model):
     def __str__(self):
         return self.task_name
 
-    # get_hours_worked on a task
-    # get cost of a task
-    
 
 class TaskUpdates(models.Model):
     task = models.ForeignKey(Task, verbose_name=_("task"), on_delete=models.CASCADE)

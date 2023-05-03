@@ -14,6 +14,7 @@ urlpatterns = [
     path('teams/', include('project_management.teams.urls')),
     path('tasks/', include('project_management.tasks.urls')),
     path('budgets/', include('project_management.budgets.urls')),
+    path('notifications/', include('project_management.notifications.urls')),
     path('', include('project_management.home.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

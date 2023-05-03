@@ -83,7 +83,8 @@ LOCAL_APPS = [
     'project_management.tasks',
     'project_management.errors',
     'project_management.teams',
-    'project_management.budgets'
+    'project_management.budgets',
+    'project_management.notifications'
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
